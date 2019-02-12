@@ -19,31 +19,31 @@ export default {
       status: "default",
       counter: 0,
       onClick: false,
-      longPressCheckerTimer: null,
-      checkCounter: 0
+      shortPressCheckerTimer: null,
+      shortPressCounter: 0
     };
   },
 
   methods: {
-    longPressChecker () {
-      if (!this.onClick && this.checkCounter) {
+    shortPressChecker () {
+      if (!this.onClick && this.shortPressCounter) {
         this.status = "counting";
-        this.checkCounter = 0
+        this.shortPressCounter = 0
         this.countAndConfirm();
       }
-      else if (this.checkCounter < 1) {
-        this.longPressCheckerTimer = window.setTimeout(this.longPressChecker, 200);
-        this.checkCounter++
+      else if (this.shortPressCounter < 1) {
+        this.shortPressCheckerTimer = window.setTimeout(this.shortPressChecker, 200);
+        this.shortPressCounter++
       }
       else {
-        this.checkCounter = 0
+        this.shortPressCounter = 0
       }
     },
     triggerCount() {
       if (this.status === "executing" || this.status === "counting") return;
       
-      if (this.longPressCheckerTimer) window.clearTimeout(this.longPressCheckerTimer)
-      this.longPressCheckerTimer = window.setTimeout(this.longPressChecker, 200);
+      if (this.shortPressCheckerTimer) window.clearTimeout(this.shortPressCheckerTimer)
+      this.shortPressCheckerTimer = window.setTimeout(this.shortPressChecker, 200);
     },
 
     countAndConfirm() {
