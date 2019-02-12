@@ -2,101 +2,129 @@
 let timer = null;
 
 export default {
-    name: 'longpress-button',
+  name: "longpress-button",
 
-    props: ['value', 'onConfirm', 'duration', 'pressingText', 'actionText'],
+  props: ["value", "onConfirm", "duration", "pressingText", "actionText"],
 
-    created() {
-        document.addEventListener('mouseup', () => this.cancel());
+  created() {
+    document.addEventListener("mouseup", () => this.cancel());
+  },
+
+  destroyed() {
+    document.removeEventListener("mouseup", () => this.cancel());
+  },
+
+  data() {
+    return {
+      status: "default",
+      counter: 0,
+      onClick: false,
+      longPressCheckerTimer: null,
+      checkCounter: 0
+    };
+  },
+
+  methods: {
+    longPressChecker () {
+      if (!this.onClick && this.checkCounter) {
+        this.status = "counting";
+        this.checkCounter = 0
+        this.countAndConfirm();
+      }
+      else if (this.checkCounter < 1) {
+        this.longPressCheckerTimer = window.setTimeout(this.longPressChecker, 200);
+        this.checkCounter++
+      }
+      else {
+        this.checkCounter = 0
+      }
+    },
+    triggerCount() {
+      if (this.status === "executing" || this.status === "counting") return;
+      
+      if (this.longPressCheckerTimer) window.clearTimeout(this.longPressCheckerTimer)
+      this.longPressCheckerTimer = window.setTimeout(this.longPressChecker, 200);
     },
 
-    destroyed() {
-        document.removeEventListener('mouseup', () => this.cancel());
-    },
+    countAndConfirm() {
+      if (this.status === "counting") {
+        timer = window.setTimeout(() => {
+          this.counter++;
 
-    data() {
-        return {
-            status: 'default',
-            counter: 0
-        }
-    },
+          if (this.counter >= this.duration) {
+            this.status = "executing";
 
-    methods: {
-        triggerCount() {
-            if (this.status === 'executing' || this.status === 'counting')
-                return;
+            window.clearTimeout(timer);
 
-            this.status = 'counting';
+            window.setTimeout(_ => {
+              if (this.onConfirm) this.onConfirm(this.value || null);
 
-            this.countAndConfirm();
-        },
-
-        countAndConfirm() {
-            timer = setTimeout(() => {
-                this.counter++;
-
-                if (this.counter >= this.duration) {
-                    this.status = 'executing';
-
-                    clearTimeout(timer);
-
-                    setTimeout(_ => {
-                        if (this.onConfirm)
-                            this.onConfirm(this.value || null);
-                        
-                        this.reset();
-                    }, 1000);
-
-                    return;
-                }
-
-                this.countAndConfirm();
+              this.reset();
             }, 1000);
-        },
 
-        reset() {
-            this.status = 'default';
-            this.cancel();
-        },
+            return;
+          }
 
-        cancel() {
-            if (this.status === 'executing')
-                return;
-
-            this.counter = 0;
-
-            clearTimeout(timer);
-
-            this.status = 'default';
-        }
+          this.countAndConfirm();
+        }, 1000);
+      }
     },
 
-    computed: {
-        countingPressingText() {
-            const pressingText = this.pressingText || '';
-            return pressingText
-                .replace(/\{\$counter\}/gi, this.counter)
-                .replace(/\{\$rcounter\}/gi, this.duration - this.counter)
-                .replace(/\{\$duration\}/gi, this.duration);
-        }
+    reset() {
+      this.status = "default";
+      this.cancel();
+    },
+
+    cancel() {
+      if (this.status === "executing") {
+        return;
+      } else if (this.status === "default") {
+        if (this.onClick) window.clearTimeout(this.onClick)
+        this.onClick = window.setTimeout(_ => {
+            if (this.onClick)  {
+              window.clearTimeout(this.onClick)
+              this.onClick = false
+            }
+        }, 500)
+      }
+
+      this.counter = 0;
+
+      if (timer) window.clearTimeout(timer);
+
+      this.status = "default";
+
     }
-}
+  },
+
+  computed: {
+    countingPressingText() {
+      let pressingText = this.pressingText || "";
+      return pressingText
+        .replace(/\{\$counter\}/gi, this.counter)
+        .replace(/\{\$rcounter\}/gi, this.duration - this.counter)
+        .replace(/\{\$duration\}/gi, this.duration);
+    }
+  }
+};
 </script>
 
 <template>
-    <div class="longpress-button" :class="status"
-        @touchend="cancel()"
-        @touchstart.prevent="triggerCount()"
-        @mouseup="cancel()"
-        @mousedown.prevent="triggerCount()">
-
-        <div>
-            <slot v-if="status === 'default'"></slot>
-            <span v-if="status === 'counting'">{{ countingPressingText || 'Keep pressing' }}</span>
-            <span v-if="status === 'executing'">{{ actionText || 'Please wait...' }}</span>
-        </div>
-        <span class="progress-bar" :style="'animation-duration:'+duration+'s'"></span>
+  <div
+    class="longpress-button"
+    :class="status"
+    @touchend="cancel()"
+    @touchstart.prevent="triggerCount()"
+    @mouseup="cancel()"
+    @mousedown.prevent="triggerCount()"
+  >
+    <div>
+      <slot v-if="status === 'default'"></slot>
+      <span v-if="status === 'counting'">{{ countingPressingText || 'Keep pressing' }}</span>
+      <span v-if="status === 'executing'">{{ actionText || 'Please wait...' }}</span>
     </div>
+    <span class="progress-bar" :style="'animation-duration:'+duration+'s'"></span>
+  </div>
 </template>
 
 <style lang="sass">
