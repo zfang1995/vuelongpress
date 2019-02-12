@@ -19,6 +19,7 @@ export default {
     return {
       status: "default",
       counter: clickDelay,
+      clickDelay,
       onClick: false,
       shortPressCheckerTimer: null,
       shortPressCounter: 0
@@ -50,7 +51,7 @@ export default {
     countAndConfirm() {
       if (this.status === "counting") {
         timer = window.setTimeout(() => {
-          this.counter = this.counter + clickDelay;
+          this.counter = this.counter + this.clickDelay;
 
           if (this.counter >= this.duration) {
             this.status = "executing";
@@ -61,13 +62,13 @@ export default {
               if (this.onConfirm) this.onConfirm(this.value || null);
 
               this.reset();
-            }, clickDelay * 1000);
+            }, this.clickDelay * 1000);
 
             return;
           }
 
           this.countAndConfirm();
-        }, clickDelay * 1000);
+        }, this.clickDelay * 1000);
       }
     },
 
@@ -86,7 +87,7 @@ export default {
               window.clearTimeout(this.onClick)
               this.onClick = false
             }
-        }, clickDelay * 1000)
+        }, this.clickDelay * 1000)
       }
 
       this.counter = 0;
@@ -124,7 +125,7 @@ export default {
       <span v-if="status === 'counting'">{{ countingPressingText || 'Keep pressing' }}</span>
       <span v-if="status === 'executing' && actionText !== null">{{ actionText || 'Please wait...' }}</span>
     </div>
-    <span class="progress-bar" :style="'animation-duration:'+(duration - clickDelay)+'s'"></span>
+    <span class="progress-bar" :style="`animation-duration: ${duration - clickDelay}s;`"></span>
   </div>
 </template>
 
@@ -150,7 +151,8 @@ export default {
 
     &.counting {
         .progress-bar {
-            animation: longpress-progress 5s linear;
+            animation-name: longpress-progress;
+            animation-timing-function: linear;
         }
     }
 
