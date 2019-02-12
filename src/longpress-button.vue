@@ -50,7 +50,7 @@ export default {
     countAndConfirm() {
       if (this.status === "counting") {
         timer = window.setTimeout(() => {
-          this.counter = this.counter + 0.5;
+          this.counter = this.counter + clickDelay;
 
           if (this.counter >= this.duration) {
             this.status = "executing";
@@ -61,13 +61,13 @@ export default {
               if (this.onConfirm) this.onConfirm(this.value || null);
 
               this.reset();
-            }, 500);
+            }, clickDelay * 1000);
 
             return;
           }
 
           this.countAndConfirm();
-        }, 500);
+        }, clickDelay * 1000);
       }
     },
 
@@ -86,7 +86,7 @@ export default {
               window.clearTimeout(this.onClick)
               this.onClick = false
             }
-        }, 500)
+        }, clickDelay * 1000)
       }
 
       this.counter = 0;
@@ -122,9 +122,9 @@ export default {
     <div>
       <slot v-if="status === 'default'"></slot>
       <span v-if="status === 'counting'">{{ countingPressingText || 'Keep pressing' }}</span>
-      <span v-if="status === 'executing'">{{ actionText || 'Please wait...' }}</span>
+      <span v-if="status === 'executing' && actionText !== null">{{ actionText || 'Please wait...' }}</span>
     </div>
-    <span class="progress-bar" :style="'animation-duration:'+duration+'s'"></span>
+    <span class="progress-bar" :style="'animation-duration:'+(duration - clickDelay)+'s'"></span>
   </div>
 </template>
 
