@@ -1,5 +1,6 @@
 <script>
 let timer = null;
+let clickDelay = 0.5; // unit: second
 
 export default {
   name: "longpress-button",
@@ -17,7 +18,7 @@ export default {
   data() {
     return {
       status: "default",
-      counter: 0,
+      counter: clickDelay,
       onClick: false,
       shortPressCheckerTimer: null,
       shortPressCounter: 0
@@ -49,7 +50,7 @@ export default {
     countAndConfirm() {
       if (this.status === "counting") {
         timer = window.setTimeout(() => {
-          this.counter++;
+          this.counter = this.counter + 0.5;
 
           if (this.counter >= this.duration) {
             this.status = "executing";
@@ -60,13 +61,13 @@ export default {
               if (this.onConfirm) this.onConfirm(this.value || null);
 
               this.reset();
-            }, 1000);
+            }, 500);
 
             return;
           }
 
           this.countAndConfirm();
-        }, 1000);
+        }, 500);
       }
     },
 
