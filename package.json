@@ -1,6 +1,6 @@
 {
   "name": "vue-longpress",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "scripts": {
     "build": "rm -rf ./dist && webpack --config ./webpack.config.js && webpack --config webpack.config.min.js",
     "release": "bash ./release.sh"
@@ -26,6 +26,7 @@
     "name": "Javis Perez",
     "email": "javisperez@gmail.com"
   },
+  "contributors":[{"name":"zfang1995","email":"747320213@qq.com"}],
   "readme": "README.md",
   "license": "MIT",
   "bugs": {
