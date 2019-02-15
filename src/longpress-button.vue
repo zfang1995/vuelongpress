@@ -22,7 +22,8 @@ export default {
       clickDelay,
       onClick: false,
       shortPressCheckerTimer: null,
-      shortPressCounter: 0
+      shortPressCounter: 0,
+      beforeDestroy: false
     };
   },
 
@@ -58,8 +59,9 @@ export default {
 
             window.clearTimeout(timer);
 
-            window.setTimeout(_ => {
-              if (this.onConfirm) this.onConfirm(this.value || null);
+            window.setTimeout(async _ => {
+              if (this.onConfirm) await this.onConfirm(this.value || null);
+              if (this.beforeDestroy) return ; // The role of this line of code is to reduce useless operations
 
               this.reset();
             }, this.clickDelay * 1000);
@@ -98,7 +100,6 @@ export default {
 
     }
   },
-
   computed: {
     countingPressingText() {
       let pressingText = this.pressingText || "";
@@ -107,6 +108,12 @@ export default {
         .replace(/\{\$rcounter\}/gi, this.duration - this.counter)
         .replace(/\{\$duration\}/gi, this.duration);
     }
+  },
+  beforeDestroy () {
+    this.beforeDestroy = true
+  },
+  destroyed () {
+    this.$emit('destroyed')
   }
 };
 </script>
