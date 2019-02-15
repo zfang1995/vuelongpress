@@ -1,6 +1,7 @@
 ## VueLongpress
 
 A VueJS (2.x) button component that requires you to keep pressing to confirm a given action.
+forked and improved from: https://github.com/javisperez/vuelongpress.
 
 ## DEMO
 
